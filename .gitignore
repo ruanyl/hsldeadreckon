@@ -1,3 +1,4 @@
 node_modules
 static/js/client.js
 .sass-cache
+bower_components
