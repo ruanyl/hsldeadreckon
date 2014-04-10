@@ -8,13 +8,14 @@ Clone the repo and use npm to install the other dependencies:
 ```
 git clone <repo url>
 cd <project dir>
+npm install -g grunt-cli bower
 npm install
-npm install -g grunt-cli
+bower install
 ```
 
 Run:
 ```
-grunt
+grunt release
 ```
 
 View server at localhost:8080
