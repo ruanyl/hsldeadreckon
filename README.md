@@ -1,7 +1,5 @@
-Nodejs Project Template
+Hsldeadreckon
 =============
-
-Base nodejs project template
 
 Clone the repo and use npm to install the other dependencies:
 
