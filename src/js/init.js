@@ -13,7 +13,7 @@ function init() {
 function setInitMap() {
   //Get geolocation
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
+    navigator.geolocation.watchPosition(function(position) {
       var latitude = position.coords.latitude;
       var longitude = position.coords.longitude;
       setPosition(latitude, longitude);
@@ -26,7 +26,7 @@ function setInitMap() {
   }
   //load geojson
   $.ajax({
-    url: '/static/geo.json'
+    url: '/static/map2.json'
   }).done(renderGeoData);
 }
 
@@ -36,15 +36,17 @@ function setPosition(latitude, longitude) {
 }
 
 function renderGeoData(data) {
-  L.geoJson(data, {
-    style: function(feature) {
-      return {
-        color: feature.properties.color
-      };
-    },
-    onEachFeature: function(feature, layer) {
-      layer.bindPopup(feature.properties.timestamp);
-    }
-  }).addTo(map);
+  var latlngs = [];
+  var features = data.features[0].geometry.coordinates;
+  //var polyline = L.polyline(latlngs, {color: 'red', smoothFactor: 2}).addTo(map);
+  //for(var i=0; i < features.length; i++) {
+    //var latlng = L.latLng(features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]);
+    //latlngs.push(latlng);
+    //polyline.addLatLng(latlng);
+    //map.fitBounds(polyline.getBounds());
+  //}
+  //console.log(latlngs);
+  var multiPolygon = L.multiPolygon(features, {color: 'red', smoothFactor: 2}).addTo(map);
+  map.fitBounds(multiPolygon.getBounds());
 }
 init();

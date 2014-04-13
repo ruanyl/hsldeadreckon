@@ -1,6 +1,6 @@
 var CONFIG_DEFAULT = {
   'city' : 'helsinki',
-  'zoom' : 13
+  'zoom' : 14
 };
 var maps = {
   cloudmade : {
