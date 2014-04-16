@@ -2,3 +2,5 @@ node_modules
 static/js/client.js
 .sass-cache
 bower_components
+dist/js/client.js
+static/js/client.min.js
