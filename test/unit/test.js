@@ -16,11 +16,3 @@ describe('Matching', function() {
     });
   });
 });
-
-describe("Db", function() {
-  describe("#searchNearby", function() {
-    it('should return a set of candidate LingString', function() {
-      var lineStrings = Db.searchNearby();
-    });
-  });
-});
