@@ -41,7 +41,7 @@ module.exports = function(grunt) {
     compass: {
       dist: {
         options: {
-          sassDir: 'src/sass',
+          sassDir: 'src/client/sass',
           cssDir: 'dist/css'
         }
       }
