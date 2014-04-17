@@ -16,9 +16,9 @@ server.use(bodyParser());
 router.route('/nearby')
       .post(function(req, res) {
         var collection = Db.collection("geodata");
-        var lat = +req.body.lat+0,
-            lng = +req.body.lng+0,
-            radius = req.body.radius || 20;
+        var lat = +req.body.lat,
+            lng = +req.body.lng,
+            radius = +req.body.radius || 20;
         var query = {loc : {$nearSphere : {$geometry : {type : "Point", coordinates: [lng, lat]}, $maxDistance : radius}}};
         console.log(JSON.stringify(query));
         collection.find(query).toArray(function(err, docs) {
