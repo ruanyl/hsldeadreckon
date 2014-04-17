@@ -7,11 +7,11 @@ module.exports = function(grunt) {
     },
     watch: {
       js: {
-        files: ['src/**/*.js'],
+        files: ['src/client/**/*.js'],
         tasks: ['jshint', 'browserify']
       },
       compass: {
-        files: ['src/**/*.scss'],
+        files: ['src/client/**/*.scss'],
         tasks: ['compass']
       },
       combineCss: {
@@ -23,26 +23,18 @@ module.exports = function(grunt) {
         tasks: ['concat:js']
       },
       minCss: {
-        files: ['static/css/style.css'],
+        files: ['public/css/style.css'],
         tasks: ['cssmin']
       },
       minJs: {
-        files: ['static/js/client.js'],
+        files: ['public/js/client.js'],
         tasks: ['uglify']
-      }
-    },
-    connect: {
-      server: {
-        options: {
-          port: 8080,
-          base: '.'
-        }
       }
     },
     browserify: {
       dist: {
         files: {
-          'dist/js/client.js': ['src/**/*.js']
+          'dist/js/client.js': ['src/client/**/*.js']
         }
       }
     },
@@ -57,24 +49,24 @@ module.exports = function(grunt) {
     concat: {
       css: {
         src: ['dist/**/*.css'],
-        dest: 'static/css/style.css'
+        dest: 'public/css/style.css'
       },
       js: {
         src: ['dist/**/*.js'],
-        dest: 'static/js/client.js'
+        dest: 'public/js/client.js'
       }
     },
     cssmin: {
       minify: {
         files: {
-          'static/css/style.min.css': ['static/css/style.css']
+          'public/css/style.min.css': ['public/css/style.css']
         }
       }
     },
     uglify: {
       minify: {
         files: {
-          'static/js/client.min.js': ['static/js/client.js']
+          'public/js/client.min.js': ['public/js/client.js']
         }
       }
     },
@@ -89,7 +81,6 @@ module.exports = function(grunt) {
   });
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-compass');
@@ -97,8 +88,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
 
-  grunt.registerTask('build', ['browserify', 'compass', 'concat', 'connect', 'watch']);
-  grunt.registerTask('release', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'connect', 'watch']);
+  grunt.registerTask('build', ['browserify', 'compass', 'concat', 'watch']);
+  grunt.registerTask('release', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'watch']);
   grunt.registerTask('default', ['jshint', 'build']);
-  grunt.registerTask('test', ['browserify', 'jshint', 'mochaTest']);
+  grunt.registerTask('test', ['jshint', 'mochaTest']);
 };

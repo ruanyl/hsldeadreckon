@@ -24,12 +24,16 @@ var pointToPointDist = function(lat1, lng1, lat2, lng2) {
   var radLat2 = rad(lat2);
   var radLat = radLat1 - radLat2;
   var radLng = rad(lng1) - rad(lng2);
-  var dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat/2), 2) + 
+  var dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat/2), 2) +
              Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng/2), 2)));
   dist = dist * EARTH_RADIUS;
   dist = Math.round(dist * 10000) / 10000;
   return dist;
 };
+
+var getCandidate = function() {
+
+}
 
 module.exports = {
   pointToSegCross : pointToSegCross

@@ -3,6 +3,7 @@ var chai = require('chai');
 chai.should();
 
 var Matching = require("../../src/js/matching");
+var Db = require("../../src/js/db");
 
 describe('Matching', function() {
   describe('#pointToSegCross', function() {
@@ -12,6 +13,14 @@ describe('Matching', function() {
                                            60.18804391441504, 24.83488440513611);
       cross.should.have.property('lat').be.a('number');
       cross.should.have.property('lng').be.a('number');
+    });
+  });
+});
+
+describe("Db", function() {
+  describe("#searchNearby", function() {
+    it('should return a set of candidate LingString', function() {
+      var lineStrings = Db.searchNearby();
     });
   });
 });

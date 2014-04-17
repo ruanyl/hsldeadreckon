@@ -8,18 +8,26 @@
   },
   "author": "",
   "license": "BSD-2-Clause",
+  "scripts": {
+    "start": "node src/server/server.js",
+    "dev": "node node_modules/nodemon/nodemon.js src/server/server.js"
+  },
   "dependencies": {
     "mongodb": "~1.4.1",
     "jquery-node-browserify": "~1.7.2",
+    "express": "~4.0.0",
+    "body-parser": "~1.0.1",
     "underscore": "~1.6.0"
   },
   "devDependencies": {
+    "nodemon": "~0.7.10",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-contrib-connect": "~0.7.1",
     "grunt-contrib-jshint": "~0.7.2",
     "grunt-browserify": "~1.2.11",
     "browserify": "~2.36.1",
     "grunt-mocha-test": "~0.10.0",
+    "mocha": "~1.17.1",
     "grunt-contrib-compass": "~0.7.2",
     "grunt-contrib-concat": "~0.4.0",
     "grunt-contrib-uglify": "~0.4.0",
