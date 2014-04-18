@@ -1,40 +1,106 @@
 var _ = require('underscore');
+var $ = require('jquery-node-browserify');
 
-var EARTH_RADIUS = 6378.137;
+var EARTH_RADIUS = 6378137;
 
-var pointToSegCross = function(lat, lng, lat1, lng1, lat2, lng2) {
+var pointToSegCrossEnd = function(lng, lat, lng1, lat1, lng2, lat2) {
   var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
-  if (cross <= 0) return {lat : lat1, lng : lng1};
+  if (cross <= 0) return [lng1, lat1];
 
   var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
-  if (cross >= d2) return {lat : lat2, lng : lng2};
+  if (cross >= d2) return [lng2, lat2];
 
   var r = cross / d2;
   var px = lat1 + (lat2 - lat1) * r;
   var py = lng1 + (lng2 - lng1) * r;
-  return {lat : px, lng : py};
+  return [py, px];
+};
+
+var pointToSegCrossMid = function(lng, lat, lng1, lat1, lng2, lat2) {
+  var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
+  if (cross <= 0) return -1;
+
+  var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
+  if (cross >= d2) return -1;
+
+  var r = cross / d2;
+  var px = lat1 + (lat2 - lat1) * r;
+  var py = lng1 + (lng2 - lng1) * r;
+  return [py, px];
 };
 
 var rad = function(d) {
   return d * Math.PI / 180;
 };
 
-var pointToPointDist = function(lat1, lng1, lat2, lng2) {
+var pointToPointDist = function(lng1, lat1, lng2, lat2) {
   var radLat1 = rad(lat1);
   var radLat2 = rad(lat2);
   var radLat = radLat1 - radLat2;
   var radLng = rad(lng1) - rad(lng2);
-  var dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat/2), 2) +
-             Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng/2), 2)));
+  var dist = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat / 2), 2) +
+    Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng / 2), 2)));
   dist = dist * EARTH_RADIUS;
   dist = Math.round(dist * 10000) / 10000;
   return dist;
 };
 
-var getCandidate = function() {
+var getCandidatePoints = function(lng, lat, lines) {
+  var candidatePoints = [];
+  for(var i=0; i<lines.length; i++) {
+    var line = lines[i];
+    var coordinates = line.geometry.coordinates;
+    var dist = 0;
+    var pointOffset = 0;
+    var clength = coordinates.length;
+    for(var j=0; j<clength; j++) {
+      var _dist = pointToPointDist(lng, lat, coordinates[j][0], coordinates[j][1]);
+      if(_dist < dist) {
+        dist = _dist;
+        pointOffset = j;
+      }
+    }
+    if(pointOffset === 0) {
+      var candidatePoint = pointToSegCrossEnd(lng, lat,
+                         coordinates[pointOffset][0], coordinates[pointOffset][1],
+                         coordinates[pointOffset+1][0], coordinates[pointOffset+1][1]);
+      candidatePoints.push(candidatePoint);
+    } else if(pointOffset === clength-1) {
+      var candidatePoint = pointToSegCrossEnd(lng, lat,
+                         coordinates[pointOffset][0], coordinates[pointOffset][1],
+                         coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
+      candidatePoints.push(candidatePoint);
+    } else {
+      var candidatePoint = pointToSegCrossMid(lng, lat,
+                         coordinates[pointOffset][0], coordinates[pointOffset][1],
+                         coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
+      if(candidatePoint) {
+        candidatePoints.push(candidatePoint);
+      } else {
+        var candidatePoint = pointToSegCrossMid(lng, lat,
+                          coordinates[pointOffset][0], coordinates[pointOffset][1],
+                          coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
+        candidatePoints.push(candidatePoint);
+      }
+    }
+  }
+  return candidatePoints;
+};
 
-}
+var getCandidateLines = function(lng, lat, radius) {
+  $.ajax({
+    type: 'POST',
+    url: 'http://82.130.25.39:8080/query/nearby',
+    data: {
+      lat: lat,
+      lng: lng,
+      radius: radius
+    }
+  }).done(function(data) {
+    console.log(getCandidatePoints(lng, lat, data));
+  });
+};
 
 module.exports = {
-  pointToSegCross : pointToSegCross
+  getCandidateLines: getCandidateLines
 };

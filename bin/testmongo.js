@@ -5,18 +5,38 @@ var Db = require('mongodb').Db,
     $ = require('jquery-node-browserify'),
     assert = require('assert');
 
-var geodata = JSON.parse(fs.readFileSync('static/map.json', 'utf8'));
+var geodata = JSON.parse(fs.readFileSync('./map.json', 'utf8'));
 
 var db = new Db('geo_helsinki', new Server('localhost', 27017), {safe : true});
+//db.open(function(err, db) {
+//  var collection = db.collection("fullgeodata");
+//  for(var i=0; i<geodata.features.length; i++) {
+//    if(geodata.features[i].geometry.type === 'LineString') {
+//      var feature = {};
+//      var coordinates = geodata.features[i].geometry.coordinates;
+//      coordinates = removeDuplicate(coordinates);
+//      feature.loc = geodata.features[i].geometry;
+//      feature.loc.coordinates = coordinates;
+//      collection.insert(feature, function(err, result) {
+//      });
+//    }
+//  }
+//  db.close();
+//});
+
 db.open(function(err, db) {
-  var collection = db.collection("geodata");
+  var collection = db.collection("fullgeodata");
   for(var i=0; i<geodata.features.length; i++) {
     if(geodata.features[i].geometry.type === 'LineString') {
       var feature = {};
+      var type = geodata.features[i].type;
+      var properties = geodata.features[i].properties;
       var coordinates = geodata.features[i].geometry.coordinates;
+      feature.type = type;
+      feature.properties = properties;
       coordinates = removeDuplicate(coordinates);
-      feature.loc = geodata.features[i].geometry;
-      feature.loc.coordinates = coordinates;
+      feature.geometry = geodata.features[i].geometry;
+      feature.geometry.coordinates = coordinates;
       collection.insert(feature, function(err, result) {
       });
     }
