@@ -18,10 +18,10 @@ var pointToSegCrossEnd = function(lng, lat, lng1, lat1, lng2, lat2) {
 
 var pointToSegCrossMid = function(lng, lat, lng1, lat1, lng2, lat2) {
   var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
-  if (cross <= 0) return -1;
+  if (cross <= 0) return 0;
 
   var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
-  if (cross >= d2) return -1;
+  if (cross >= d2) return 0;
 
   var r = cross / d2;
   var px = lat1 + (lat2 - lat1) * r;
@@ -53,8 +53,10 @@ var getCandidatePoints = function(lng, lat, lines) {
     var dist = 0;
     var pointOffset = 0;
     var clength = coordinates.length;
+    console.log('coordinates length ' + coordinates.length);
     for(var j=0; j<clength; j++) {
       var _dist = pointToPointDist(lng, lat, coordinates[j][0], coordinates[j][1]);
+      dist = dist === 0 ? _dist : dist;
       if(_dist < dist) {
         dist = _dist;
         pointOffset = j;
@@ -65,11 +67,13 @@ var getCandidatePoints = function(lng, lat, lines) {
                          coordinates[pointOffset][0], coordinates[pointOffset][1],
                          coordinates[pointOffset+1][0], coordinates[pointOffset+1][1]);
       candidatePoints.push(candidatePoint);
+    console.log('0 offset ' + pointOffset);
     } else if(pointOffset === clength-1) {
       var candidatePoint = pointToSegCrossEnd(lng, lat,
                          coordinates[pointOffset][0], coordinates[pointOffset][1],
                          coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
       candidatePoints.push(candidatePoint);
+    console.log('-1 offset ' + pointOffset);
     } else {
       var candidatePoint = pointToSegCrossMid(lng, lat,
                          coordinates[pointOffset][0], coordinates[pointOffset][1],
@@ -79,9 +83,14 @@ var getCandidatePoints = function(lng, lat, lines) {
       } else {
         var candidatePoint = pointToSegCrossMid(lng, lat,
                           coordinates[pointOffset][0], coordinates[pointOffset][1],
-                          coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
-        candidatePoints.push(candidatePoint);
+                          coordinates[pointOffset+1][0], coordinates[pointOffset+1][1]);
+        if(candidatePoint) {
+          candidatePoints.push(candidatePoint);
+        } else {
+          candidatePoints.push(coordinates[pointOffset][0],coordinates[pointOffset][1]);
+        }
       }
+    console.log('mid offset ' + pointOffset);
     }
   }
   return candidatePoints;
