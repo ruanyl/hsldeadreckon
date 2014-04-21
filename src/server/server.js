@@ -15,7 +15,7 @@ server.use(bodyParser());
 
 router.route('/nearby')
       .post(function(req, res) {
-        var collection = Db.collection("fullgeodata");
+        var collection = Db.collection("geodata_0420");
         var lat = +req.body.lat,
             lng = +req.body.lng,
             radius = +req.body.radius || 20;

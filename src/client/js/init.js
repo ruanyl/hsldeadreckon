@@ -2,7 +2,7 @@ var config = require('./config');
 var Matching = require('./matching');
 
 function init() {
-  Matching.getCandidateLines(24.94557648897171, 60.15812047160007, 20);
+  Matching.getCandidateLines(24.9456650018692, 60.15815784286957, 20);
   map = L.map('map');
   map.on('load', setInitMap);
   marker = L.marker([config.defaultConfig.latitude, config.defaultConfig.longitude]).addTo(map);

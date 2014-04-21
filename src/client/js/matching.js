@@ -47,50 +47,51 @@ var pointToPointDist = function(lng1, lat1, lng2, lat2) {
 
 var getCandidatePoints = function(lng, lat, lines) {
   var candidatePoints = [];
-  for(var i=0; i<lines.length; i++) {
+  for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     var coordinates = line.geometry.coordinates;
     var dist = 0;
     var pointOffset = 0;
     var clength = coordinates.length;
     console.log('coordinates length ' + coordinates.length);
-    for(var j=0; j<clength; j++) {
+    for (var j = 0; j < clength; j++) {
       var _dist = pointToPointDist(lng, lat, coordinates[j][0], coordinates[j][1]);
       dist = dist === 0 ? _dist : dist;
-      if(_dist < dist) {
+      if (_dist < dist) {
         dist = _dist;
         pointOffset = j;
       }
     }
-    if(pointOffset === 0) {
+    if (pointOffset === 0) {
       var candidatePoint = pointToSegCrossEnd(lng, lat,
-                         coordinates[pointOffset][0], coordinates[pointOffset][1],
-                         coordinates[pointOffset+1][0], coordinates[pointOffset+1][1]);
+        coordinates[pointOffset][0], coordinates[pointOffset][1],
+        coordinates[pointOffset + 1][0], coordinates[pointOffset + 1][1]);
       candidatePoints.push(candidatePoint);
-    console.log('0 offset ' + pointOffset);
-    } else if(pointOffset === clength-1) {
+      console.log('0 offset ' + pointOffset);
+    } else if (pointOffset === clength - 1) {
       var candidatePoint = pointToSegCrossEnd(lng, lat,
-                         coordinates[pointOffset][0], coordinates[pointOffset][1],
-                         coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
+        coordinates[pointOffset][0], coordinates[pointOffset][1],
+        coordinates[pointOffset - 1][0], coordinates[pointOffset - 1][1]);
       candidatePoints.push(candidatePoint);
-    console.log('-1 offset ' + pointOffset);
+      console.log('-1 offset ' + pointOffset);
     } else {
       var candidatePoint = pointToSegCrossMid(lng, lat,
-                         coordinates[pointOffset][0], coordinates[pointOffset][1],
-                         coordinates[pointOffset-1][0], coordinates[pointOffset-1][1]);
-      if(candidatePoint) {
+        coordinates[pointOffset][0], coordinates[pointOffset][1],
+        coordinates[pointOffset - 1][0], coordinates[pointOffset - 1][1]);
+      if (candidatePoint) {
         candidatePoints.push(candidatePoint);
+          console.log('mid offset ' + candidatePoint);
       } else {
         var candidatePoint = pointToSegCrossMid(lng, lat,
-                          coordinates[pointOffset][0], coordinates[pointOffset][1],
-                          coordinates[pointOffset+1][0], coordinates[pointOffset+1][1]);
-        if(candidatePoint) {
+          coordinates[pointOffset][0], coordinates[pointOffset][1],
+          coordinates[pointOffset + 1][0], coordinates[pointOffset + 1][1]);
+        if (candidatePoint) {
           candidatePoints.push(candidatePoint);
+          console.log('mid offset ' + candidatePoint);
         } else {
-          candidatePoints.push(coordinates[pointOffset][0],coordinates[pointOffset][1]);
+          candidatePoints.push(coordinates[pointOffset][0], coordinates[pointOffset][1]);
         }
       }
-    console.log('mid offset ' + pointOffset);
     }
   }
   return candidatePoints;

@@ -25,9 +25,14 @@ var db = new Db('geo_helsinki', new Server('localhost', 27017), {safe : true});
 //});
 
 db.open(function(err, db) {
-  var collection = db.collection("fullgeodata");
+  var collection = db.collection("geodata_0420");
   for(var i=0; i<geodata.features.length; i++) {
-    if(geodata.features[i].geometry.type === 'LineString') {
+    if(geodata.features[i].geometry.type === 'LineString' &&
+       geodata.features[i].properties.highway &&
+       geodata.features[i].properties.highway !== "footway" &&
+       geodata.features[i].properties.highway !== "bridleway" &&
+       geodata.features[i].properties.highway !== "steps" &&
+       geodata.features[i].properties.highway !== "path") {
       var feature = {};
       var type = geodata.features[i].type;
       var properties = geodata.features[i].properties;
