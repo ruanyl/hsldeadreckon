@@ -11,9 +11,9 @@ var pointToSegCrossEnd = function(lng, lat, lng1, lat1, lng2, lat2) {
   if (cross >= d2) return [lng2, lat2];
 
   var r = cross / d2;
-  var px = lat1 + (lat2 - lat1) * r;
-  var py = lng1 + (lng2 - lng1) * r;
-  return [py, px];
+  var px = lng1 + (lng2 - lng1) * r;
+  var py = lat1 + (lat2 - lat1) * r;
+  return [px, py];
 };
 
 var pointToSegCrossMid = function(lng, lat, lng1, lat1, lng2, lat2) {
@@ -24,9 +24,9 @@ var pointToSegCrossMid = function(lng, lat, lng1, lat1, lng2, lat2) {
   if (cross >= d2) return 0;
 
   var r = cross / d2;
-  var px = lat1 + (lat2 - lat1) * r;
-  var py = lng1 + (lng2 - lng1) * r;
-  return [py, px];
+  var px = lng1 + (lng2 - lng1) * r;
+  var py = lat1 + (lat2 - lat1) * r;
+  return [px, py];
 };
 
 var rad = function(d) {
@@ -80,7 +80,7 @@ var getCandidatePoints = function(lng, lat, lines) {
         coordinates[pointOffset - 1][0], coordinates[pointOffset - 1][1]);
       if (candidatePoint) {
         candidatePoints.push(candidatePoint);
-          console.log('mid offset ' + candidatePoint);
+        console.log('mid offset ' + candidatePoint);
       } else {
         var candidatePoint = pointToSegCrossMid(lng, lat,
           coordinates[pointOffset][0], coordinates[pointOffset][1],
@@ -89,12 +89,24 @@ var getCandidatePoints = function(lng, lat, lines) {
           candidatePoints.push(candidatePoint);
           console.log('mid offset ' + candidatePoint);
         } else {
-          candidatePoints.push(coordinates[pointOffset][0], coordinates[pointOffset][1]);
+          candidatePoints.push([coordinates[pointOffset][0], coordinates[pointOffset][1]]);
         }
       }
     }
   }
   return candidatePoints;
+};
+
+var observationProbability = function(lng, lat, lnglats) {
+  var ops = [];
+  for (var i = 0; i < lnglats.length; i++) {
+    var dist = pointToPointDist(lng, lat, lnglats[i][0], lnglats[i][1]);
+    console.log(dist);
+    var op = (1 / ((Math.pow(2 * Math.PI), 1 / 2) * 20)) * Math.pow(2.718, -(dist * dist) / (2 * 20 * 20));
+    console.log(op);
+    ops.push(op);
+  }
+  return ops;
 };
 
 var getCandidateLines = function(lng, lat, radius) {
@@ -107,7 +119,9 @@ var getCandidateLines = function(lng, lat, radius) {
       radius: radius
     }
   }).done(function(data) {
-    console.log(getCandidatePoints(lng, lat, data));
+    var cp = getCandidatePoints(lng, lat, data);
+    console.log(cp);
+    console.log(observationProbability(lng, lat, cp));
   });
 };
 
