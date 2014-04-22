@@ -2,6 +2,7 @@ var _ = require('underscore');
 var $ = require('jquery-node-browserify');
 
 var EARTH_RADIUS = 6378137;
+var DEVIATION = 20;
 
 var pointToSegCrossEnd = function(lng, lat, lng1, lat1, lng2, lat2) {
   var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
@@ -102,7 +103,7 @@ var observationProbability = function(lng, lat, lnglats) {
   for (var i = 0; i < lnglats.length; i++) {
     var dist = pointToPointDist(lng, lat, lnglats[i][0], lnglats[i][1]);
     console.log(dist);
-    var op = (1 / ((Math.pow(2 * Math.PI), 1 / 2) * 20)) * Math.pow(2.718, -(dist * dist) / (2 * 20 * 20));
+    var op = (1 / (Math.pow(2 * Math.PI, 1 / 2) * DEVIATION)) * Math.pow(Math.E, -(dist * dist) / (2 * DEVIATION * DEVIATION));
     console.log(op);
     ops.push(op);
   }
