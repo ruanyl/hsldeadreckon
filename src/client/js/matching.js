@@ -4,6 +4,8 @@ var $ = require('jquery-node-browserify');
 var EARTH_RADIUS = 6378137;
 var DEVIATION = 20;
 
+var Point = require('./point');
+
 var pointToSegCrossEnd = function(lng, lat, lng1, lat1, lng2, lat2) {
   var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
   if (cross <= 0) return [lng1, lat1];
@@ -127,5 +129,6 @@ var getCandidateLines = function(lng, lat, radius) {
 };
 
 module.exports = {
-  getCandidateLines: getCandidateLines
+  getCandidateLines: getCandidateLines,
+  pointToSegCrossEnd: pointToSegCrossEnd
 };
