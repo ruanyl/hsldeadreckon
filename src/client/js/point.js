@@ -1,9 +1,9 @@
-var Point = function(probability) {
-  this.probability = probability;
+var Point = function(lng, lat) {
+  this.longitude = lng;
+  this.latitude = lat;
+  this.probability = null;
   this.prePoint = null;
   this.nextPoint = null;
-  this.latitude = null;
-  this.longitude = null;
 };
 
 Point.prototype = {

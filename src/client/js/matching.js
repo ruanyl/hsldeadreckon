@@ -9,15 +9,15 @@ var Matching = function() {
 Matching.prototype = {
   pointToSegCrossEnd: function(lng, lat, lng1, lat1, lng2, lat2) {
     var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
-    if (cross <= 0) return [lng1, lat1];
+    if (cross <= 0) return new Point(lng1, lat1);
 
     var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
-    if (cross >= d2) return [lng2, lat2];
+    if (cross >= d2) return new Point(lng2, lat2);
 
     var r = cross / d2;
     var px = lng1 + (lng2 - lng1) * r;
     var py = lat1 + (lat2 - lat1) * r;
-    return [px, py];
+    return new Point(px, py);
   },
   pointToSegCrossMid: function(lng, lat, lng1, lat1, lng2, lat2) {
     var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
@@ -29,7 +29,7 @@ Matching.prototype = {
     var r = cross / d2;
     var px = lng1 + (lng2 - lng1) * r;
     var py = lat1 + (lat2 - lat1) * r;
-    return [px, py];
+    return new Point(px, py);
   },
   rad: function(d) {
     return d * Math.PI / 180;
@@ -89,23 +89,23 @@ Matching.prototype = {
             candidatePoints.push(candidatePoint);
             console.log('mid offset ' + candidatePoint);
           } else {
-            candidatePoints.push([coordinates[pointOffset][0], coordinates[pointOffset][1]]);
+            candidatePoints.push(new Point(coordinates[pointOffset][0], coordinates[pointOffset][1]));
           }
         }
       }
     }
     return candidatePoints;
   },
-  observationProbability: function(lng, lat, lnglats) {
+  observationProbability: function(lng, lat, points) {
     var ops = [];
-    for (var i = 0; i < lnglats.length; i++) {
-      var dist = this.pointToPointDist(lng, lat, lnglats[i][0], lnglats[i][1]);
+    for (var i = 0; i < points.length; i++) {
+      var point = points[i];
+      var dist = this.pointToPointDist(lng, lat, point.longitude, point.latitude);
       console.log(dist);
       var op = (1 / (Math.pow(2 * Math.PI, 1 / 2) * this.DEVIATION)) * Math.pow(Math.E, -(dist * dist) / (2 * this.DEVIATION * this.DEVIATION));
-      console.log(op);
-      ops.push(op);
+      point.probability = op;
     }
-    return ops;
+    return points;
   }
 };
 

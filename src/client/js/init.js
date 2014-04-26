@@ -26,9 +26,9 @@ function init() {
     }
   }).done(function(data) {
     var matching = new Matching();
-    var cp = matching.getCandidatePoints(lng, lat, data);
-    console.log(cp);
-    console.log(matching.observationProbability(lng, lat, cp));
+    var points = matching.getCandidatePoints(lng, lat, data);
+    console.log(points);
+    console.log(matching.observationProbability(lng, lat, points));
   });
 }
 
