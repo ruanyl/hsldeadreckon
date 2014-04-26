@@ -1,8 +1,13 @@
+var $ = require('jquery-node-browserify');
+
 var config = require('./config');
 var Matching = require('./matching');
 
 function init() {
-  Matching.getCandidateLines(24.9456650018692, 60.15815784286957, 20);
+  var lng = 24.94054466485977;
+  var lat = 60.15680310720238;
+  var radius = 20;
+
   map = L.map('map');
   map.on('load', setInitMap);
   marker = L.marker([config.defaultConfig.latitude, config.defaultConfig.longitude]).addTo(map);
@@ -11,6 +16,20 @@ function init() {
     attribution: config.cloudmade.attribution
   }).addTo(map);
 
+  $.ajax({
+    type: 'POST',
+    url: 'http://82.130.25.39:8080/query/nearby',
+    data: {
+      lat: lat,
+      lng: lng,
+      radius: radius
+    }
+  }).done(function(data) {
+    var matching = new Matching();
+    var cp = matching.getCandidatePoints(lng, lat, data);
+    console.log(cp);
+    console.log(matching.observationProbability(lng, lat, cp));
+  });
 }
 
 function setInitMap() {
