@@ -45,7 +45,8 @@ Matching.prototype = {
     dist = Math.round(dist * 10000) / 10000;
     return dist;
   },
-  getCandidatePoints: function(lng, lat, lines) {
+  getCandidatePoints: function(lng, lat, localPoints, lines) {
+    //find nearby points on the lines
     var candidatePoints = [];
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
@@ -94,7 +95,11 @@ Matching.prototype = {
         }
       }
     }
-    return candidatePoints;
+    //add observation probability
+    candidatePoints = this.observationProbability(lng, lat, candidatePoints);
+    var points = localPoints ? localPoints : [];
+    points.push(candidatePoints);
+    return points;
   },
   observationProbability: function(lng, lat, points) {
     var ops = [];

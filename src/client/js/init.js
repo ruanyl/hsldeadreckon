@@ -25,10 +25,12 @@ function init() {
       radius: radius
     }
   }).done(function(data) {
+    //var localPoints = getLocalPoints();
+    var localPoints = null;
     var matching = new Matching();
-    var points = matching.getCandidatePoints(lng, lat, data);
+    var points = matching.getCandidatePoints(lng, lat, localPoints, data);
+    setLocalPoints(points);
     console.log(points);
-    console.log(matching.observationProbability(lng, lat, points));
   });
 }
 
