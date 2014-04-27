@@ -1,4 +1,7 @@
+var Util = require('./util');
+
 var Point = function(lng, lat) {
+  this.id = Util.generateUUID();
   this.longitude = lng;
   this.latitude = lat;
   this.probability = null;
