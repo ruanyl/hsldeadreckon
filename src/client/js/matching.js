@@ -1,4 +1,3 @@
-
 var Point = require('./point');
 
 var Matching = function() {
@@ -9,15 +8,15 @@ var Matching = function() {
 Matching.prototype = {
   pointToSegCrossEnd: function(lng, lat, lng1, lat1, lng2, lat2) {
     var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
-    if (cross <= 0) return new Point(lng1, lat1);
+    if (cross <= 0) return new Point(lng1, lat1, lng, lat);
 
     var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
-    if (cross >= d2) return new Point(lng2, lat2);
+    if (cross >= d2) return new Point(lng2, lat2, lng, lat);
 
     var r = cross / d2;
     var px = lng1 + (lng2 - lng1) * r;
     var py = lat1 + (lat2 - lat1) * r;
-    return new Point(px, py);
+    return new Point(px, py, lng, lat);
   },
   pointToSegCrossMid: function(lng, lat, lng1, lat1, lng2, lat2) {
     var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
@@ -29,7 +28,7 @@ Matching.prototype = {
     var r = cross / d2;
     var px = lng1 + (lng2 - lng1) * r;
     var py = lat1 + (lat2 - lat1) * r;
-    return new Point(px, py);
+    return new Point(px, py, lng, lat);
   },
   rad: function(d) {
     return d * Math.PI / 180;
@@ -90,7 +89,7 @@ Matching.prototype = {
             candidatePoints.push(candidatePoint);
             console.log('mid offset ' + candidatePoint);
           } else {
-            candidatePoints.push(new Point(coordinates[pointOffset][0], coordinates[pointOffset][1]));
+            candidatePoints.push(new Point(coordinates[pointOffset][0], coordinates[pointOffset][1], lng, lat));
           }
         }
       }
@@ -99,16 +98,44 @@ Matching.prototype = {
     candidatePoints = this.observationProbability(lng, lat, candidatePoints);
     var points = localPoints ? localPoints : [];
     points.push(candidatePoints);
+    if (points.length > 1) {
+      points = this.transmissionProbability(points);
+    }
     return points;
   },
   observationProbability: function(lng, lat, points) {
-    var ops = [];
     for (var i = 0; i < points.length; i++) {
       var point = points[i];
       var dist = this.pointToPointDist(lng, lat, point.longitude, point.latitude);
       console.log(dist);
       var op = (1 / (Math.pow(2 * Math.PI, 1 / 2) * this.DEVIATION)) * Math.pow(Math.E, -(dist * dist) / (2 * this.DEVIATION * this.DEVIATION));
       point.probability = op;
+    }
+    return points;
+  },
+  transmissionProbability: function(points) {
+    var currentPoints = points[points.length - 1];
+    var previousPoints = points[points.length - 2];
+    var p_dist = this.pointToPointDist(currentPoints[0].originLongitude, currentPoints[0].originLatitude,
+      previousPoints[0].originLongitude, previousPoints[0].originLatitude);
+    for (var i = 0; i < currentPoints.length; i++) {
+      var currentPoint = currentPoints[i];
+      var otp = 0;
+      for (var j = 0; j < previousPoints.length; j++) {
+        var previousPoint = previousPoints[j];
+        var c_dist = this.pointToPointDist(currentPoint.longitude, currentPoint.latitude, previousPoint.longitude, previousPoint.latitude);
+        var tp = 0;
+        if (c_dist !== 0) {
+          tp = p_dist / c_dist;
+        }
+        console.log("transmissionProbability: " + tp);
+        var _otp = currentPoint.probability * tp + previousPoint.probability;
+        if (_otp > otp) {
+          otp = _otp;
+          currentPoint.prePointId = previousPoint.id;
+        }
+      }
+      currentPoint.probability = otp;
     }
     return points;
   }
