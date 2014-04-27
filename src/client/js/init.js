@@ -32,6 +32,25 @@ function init() {
   });
 }
 
+function getLocalPoints() {
+  var localPoints = null;
+  var localPointsJson = localStorage.getItem('localPoints');
+  if(localPointsJson !== null) {
+    try {
+      localPoints = JSON.parse(localPointsJson);
+    } catch(e) {
+      console.log('Invalid localStorage contents');
+      localPoints = null;
+    }
+  }
+  return localPoints;
+}
+
+function setLocalPoints(points) {
+  var localPointsJson = JSON.stringify(points);
+  localStorage.setItem('localPoints', localPointsJson);
+}
+
 function setInitMap() {
   //Get geolocation
   if (navigator.geolocation) {
