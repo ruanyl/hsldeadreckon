@@ -1,39 +1,39 @@
 var assert = require("assert");
 var chai = require('chai');
+
 chai.should();
 var assert = chai.assert;
 
 var Matching = require("../../src/client/js/matching");
 var Point = require("../../src/client/js/point");
+var Projection = require("../../src/client/js/projection");
 
 describe('Matching', function() {
   describe('#pointToSegCross', function() {
     it('should return lat and lng of the cross', function() {
-      var cross = Matching.pointToSegCrossEnd(60.18845728866007, 24.834149479866028,
-                                           60.1886999769209, 24.834535717964172,
-                                           60.18804391441504, 24.83488440513611);
-      cross.should.be.a('array');
-      cross.should.be.a('array');
+      var matching = new Matching();
+      var cross = matching.pointToSegCrossEnd(24.939718544483185, 60.15660956897764,
+                                           24.939608573913574, 60.15683647574664,
+                                           24.940094053745266, 60.156546835653344);
+      console.log(cross);
     });
   });
 });
 
-describe('Point', function() {
-  describe('#getProb', function() {
-    it('should return probability', function() {
-      var point = new Point(0.5);
-      assert.equal(point.getProb(), 0.5);
+describe('Projection', function() {
+  describe('#ll2m', function() {
+    it('should return mercator', function() {
+      var projection = new Projection();
+      console.log(projection.ll2m(24.939608573913574, 60.15683647574664));
     });
   });
 });
 
-describe('Point', function() {
-  describe('#prePoint', function() {
-    it('should return previous point', function() {
-      var point1 = new Point(0.5);
-      var point2 = new Point(0.6);
-      point1.next(point2);
-      assert.equal(point1.next().getProb(), 0.6);
+describe('Projection', function() {
+  describe('#m2ll', function() {
+    it('should return mercator', function() {
+      var projection = new Projection();
+      console.log(projection.m2ll(2776264.5270316186, 8397640.9494729));
     });
   });
 });

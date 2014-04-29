@@ -1,4 +1,5 @@
 var Point = require('./point');
+var Projection = require('./projection');
 
 var Matching = function() {
   this.EARTH_RADIUS = 6378137;
@@ -7,16 +8,23 @@ var Matching = function() {
 
 Matching.prototype = {
   pointToSegCrossEnd: function(lng, lat, lng1, lat1, lng2, lat2) {
-    var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
+    var projection = new Projection();
+    var p = projection.ll2m(lng, lat);
+    var p1 = projection.ll2m(lng1, lat1);
+    var p2 = projection.ll2m(lng2, lat2);
+
+    var cross = (p2[1] - p1[1]) * (p[1] - p1[1]) + (p2[0] - p1[0]) * (p[0] - p1[0]);
     if (cross <= 0) return new Point(lng1, lat1, lng, lat);
 
-    var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
+    var d2 = (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[0] - p1[0]) * (p2[0] - p1[0]);
     if (cross >= d2) return new Point(lng2, lat2, lng, lat);
 
     var r = cross / d2;
-    var px = lng1 + (lng2 - lng1) * r;
-    var py = lat1 + (lat2 - lat1) * r;
-    return new Point(px, py, lng, lat);
+    var px = p1[0] + (p2[0] - p1[0]) * r;
+    var py = p1[1] + (p2[1] - p1[1]) * r;
+    console.log("px:" + px + "py:" + py);
+    var pp = projection.m2ll(px, py);
+    return new Point(pp[0], pp[1], lng, lat);
   },
   pointToSegCrossMid: function(lng, lat, lng1, lat1, lng2, lat2) {
     var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
