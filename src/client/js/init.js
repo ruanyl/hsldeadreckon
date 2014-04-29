@@ -31,13 +31,14 @@ function matching(e) {
       radius: radius
     }
   }).done(function(data) {
-    var localPoints = getLocalPoints();
-    //var localPoints = null;
-    var matching = new Matching();
-    var points = matching.getCandidatePoints(e.latlng.lng, e.latlng.lat, localPoints, data);
-    setLocalPoints(points);
-    var routes = findRoute(points);
-    setMarker(routes);
+    if (data.length) {
+      var localPoints = getLocalPoints();
+      var matching = new Matching();
+      var points = matching.getCandidatePoints(e.latlng.lng, e.latlng.lat, localPoints, data);
+      setLocalPoints(points);
+      var routes = findRoute(points);
+      setMarker(routes);
+    }
   });
 }
 
@@ -52,8 +53,6 @@ function setMarker(routes) {
     };
     routePoints.push(point);
   }
-  console.log("routePoints:");
-  console.log(routePoints);
   if (routePoints.length >= 2) {
     mapRoute = L.polyline(routePoints).addTo(map);
   }
@@ -75,7 +74,6 @@ function findRoute(points) {
     for (var j = 0; j < _points.length; j++) {
       var _point = _points[j];
       if (_point.id === prePointId) {
-        console.log(_point);
         routes.unshift(_point);
         prePointId = _point.prePointId;
       }

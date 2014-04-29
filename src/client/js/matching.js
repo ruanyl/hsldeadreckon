@@ -7,36 +7,40 @@ var Matching = function() {
 };
 
 Matching.prototype = {
-  pointToSegCrossEnd: function(lng, lat, lng1, lat1, lng2, lat2) {
+  pointToSegCross: function(lng, lat, lng1, lat1, lng2, lat2) {
     var projection = new Projection();
     var p = projection.ll2m(lng, lat);
     var p1 = projection.ll2m(lng1, lat1);
     var p2 = projection.ll2m(lng2, lat2);
 
     var cross = (p2[1] - p1[1]) * (p[1] - p1[1]) + (p2[0] - p1[0]) * (p[0] - p1[0]);
-    if (cross <= 0) return new Point(lng1, lat1, lng, lat);
+    if (cross <= 0) {
+      var point = new Point(lng1, lat1);
+      point.originLongitude = lng;
+      point.originLatitude = lat;
+      point.isBreakpoint = true;
+      return point;
+    }
 
     var d2 = (p2[1] - p1[1]) * (p2[1] - p1[1]) + (p2[0] - p1[0]) * (p2[0] - p1[0]);
-    if (cross >= d2) return new Point(lng2, lat2, lng, lat);
+    if (cross >= d2) {
+      var point = new Point(lng2, lat2);
+      point.originLongitude = lng;
+      point.originLatitude = lat;
+      point.isBreakpoint = true;
+      return point;
+    }
 
     var r = cross / d2;
     var px = p1[0] + (p2[0] - p1[0]) * r;
     var py = p1[1] + (p2[1] - p1[1]) * r;
-    console.log("px:" + px + "py:" + py);
     var pp = projection.m2ll(px, py);
-    return new Point(pp[0], pp[1], lng, lat);
-  },
-  pointToSegCrossMid: function(lng, lat, lng1, lat1, lng2, lat2) {
-    var cross = (lat2 - lat1) * (lat - lat1) + (lng2 - lng1) * (lng - lng1);
-    if (cross <= 0) return 0;
+    var point = new Point(pp[0], pp[1]);
+    point.originLongitude = lng;
+    point.originLatitude = lat;
+    point.isBreakpoint = false;
 
-    var d2 = (lat2 - lat1) * (lat2 - lat1) + (lng2 - lng1) * (lng2 - lng1);
-    if (cross >= d2) return 0;
-
-    var r = cross / d2;
-    var px = lng1 + (lng2 - lng1) * r;
-    var py = lat1 + (lat2 - lat1) * r;
-    return new Point(px, py, lng, lat);
+    return point;
   },
   rad: function(d) {
     return d * Math.PI / 180;
@@ -61,7 +65,6 @@ Matching.prototype = {
       var dist = 0;
       var pointOffset = 0;
       var clength = coordinates.length;
-      console.log('coordinates length ' + coordinates.length);
       for (var j = 0; j < clength; j++) {
         var _dist = this.pointToPointDist(lng, lat, coordinates[j][0], coordinates[j][1]);
         dist = dist === 0 ? _dist : dist;
@@ -70,35 +73,36 @@ Matching.prototype = {
           pointOffset = j;
         }
       }
+      console.log(clength + ':' + (pointOffset + 1));
       if (pointOffset === 0) {
-        var candidatePoint = this.pointToSegCrossEnd(lng, lat,
+        var candidatePoint = this.pointToSegCross(lng, lat,
           coordinates[pointOffset][0], coordinates[pointOffset][1],
           coordinates[pointOffset + 1][0], coordinates[pointOffset + 1][1]);
         candidatePoints.push(candidatePoint);
-        console.log('0 offset ' + pointOffset);
       } else if (pointOffset === clength - 1) {
-        var candidatePoint = this.pointToSegCrossEnd(lng, lat,
+        var candidatePoint = this.pointToSegCross(lng, lat,
           coordinates[pointOffset][0], coordinates[pointOffset][1],
           coordinates[pointOffset - 1][0], coordinates[pointOffset - 1][1]);
         candidatePoints.push(candidatePoint);
-        console.log('-1 offset ' + pointOffset);
       } else {
-        var candidatePoint = this.pointToSegCrossMid(lng, lat,
+        var candidatePoint1 = this.pointToSegCross(lng, lat,
           coordinates[pointOffset][0], coordinates[pointOffset][1],
           coordinates[pointOffset - 1][0], coordinates[pointOffset - 1][1]);
-        if (candidatePoint) {
-          candidatePoints.push(candidatePoint);
-          console.log('mid offset ' + candidatePoint);
+
+        var candidatePoint2 = this.pointToSegCross(lng, lat,
+          coordinates[pointOffset][0], coordinates[pointOffset][1],
+          coordinates[pointOffset + 1][0], coordinates[pointOffset + 1][1]);
+
+        var d1 = this.pointToPointDist(candidatePoint1.longitude, candidatePoint1.latitude,
+          candidatePoint1.originLongitude, candidatePoint1.originLatitude);
+
+        var d2 = this.pointToPointDist(candidatePoint2.longitude, candidatePoint2.latitude,
+          candidatePoint2.originLongitude, candidatePoint2.originLatitude);
+
+        if (d1 < d2) {
+          candidatePoints.push(candidatePoint1);
         } else {
-          var candidatePoint = this.pointToSegCrossMid(lng, lat,
-            coordinates[pointOffset][0], coordinates[pointOffset][1],
-            coordinates[pointOffset + 1][0], coordinates[pointOffset + 1][1]);
-          if (candidatePoint) {
-            candidatePoints.push(candidatePoint);
-            console.log('mid offset ' + candidatePoint);
-          } else {
-            candidatePoints.push(new Point(coordinates[pointOffset][0], coordinates[pointOffset][1], lng, lat));
-          }
+          candidatePoints.push(candidatePoint2);
         }
       }
     }
@@ -115,7 +119,6 @@ Matching.prototype = {
     for (var i = 0; i < points.length; i++) {
       var point = points[i];
       var dist = this.pointToPointDist(lng, lat, point.longitude, point.latitude);
-      console.log(dist);
       var op = (1 / (Math.pow(2 * Math.PI, 1 / 2) * this.DEVIATION)) * Math.pow(Math.E, -(dist * dist) / (2 * this.DEVIATION * this.DEVIATION));
       point.probability = op;
     }
@@ -136,7 +139,6 @@ Matching.prototype = {
         if (c_dist !== 0) {
           tp = p_dist / c_dist;
         }
-        console.log("transmissionProbability: " + tp);
         var _otp = currentPoint.probability * tp + previousPoint.probability;
         if (_otp > otp) {
           otp = _otp;

@@ -5,18 +5,17 @@ var Util = require('./util');
  *
  * @param lng {Number} longitude of a candidate point
  * @param lat {Number} latitude of a candidate point
- * @param o_lng {Number} longitude of original point
- * @param o_lat {Number} latitude of original point
  */
-var Point = function(lng, lat, o_lng, o_lat) {
+var Point = function(lng, lat) {
   this.id = Util.generateUUID();
   this.longitude = lng;
   this.latitude = lat;
-  this.originLongitude = o_lng;
-  this.originLatitude = o_lat;
+  this.originLongitude = null;
+  this.originLatitude = null;
   this.probability = null;
   this.prePointId = null;
   this.nextPointId = null;
+  this.isBreakpoint = false;
 };
 
 Point.prototype = {
