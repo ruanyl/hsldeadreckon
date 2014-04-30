@@ -3,7 +3,7 @@ var $ = require('jquery-node-browserify');
 var config = require('./config');
 var Matching = require('./matching');
 
-var radius = 20;
+var radius = 100;
 var mapRoute = null;
 
 function init() {

@@ -4,6 +4,7 @@ var Projection = require('./projection');
 var Matching = function() {
   this.EARTH_RADIUS = 6378137;
   this.DEVIATION = 20;
+  this.OFFSET = 3 / 4;
 };
 
 Matching.prototype = {
@@ -73,7 +74,6 @@ Matching.prototype = {
           pointOffset = j;
         }
       }
-      console.log(clength + ':' + (pointOffset + 1));
       if (pointOffset === 0) {
         var candidatePoint = this.pointToSegCross(lng, lat,
           coordinates[pointOffset][0], coordinates[pointOffset][1],
@@ -129,6 +129,7 @@ Matching.prototype = {
     var previousPoints = points[points.length - 2];
     var p_dist = this.pointToPointDist(currentPoints[0].originLongitude, currentPoints[0].originLatitude,
       previousPoints[0].originLongitude, previousPoints[0].originLatitude);
+    console.log('p_dist:' + p_dist);
     for (var i = 0; i < currentPoints.length; i++) {
       var currentPoint = currentPoints[i];
       var otp = 0;
@@ -136,8 +137,11 @@ Matching.prototype = {
         var previousPoint = previousPoints[j];
         var c_dist = this.pointToPointDist(currentPoint.longitude, currentPoint.latitude, previousPoint.longitude, previousPoint.latitude);
         var tp = 0;
-        if (c_dist !== 0) {
+        if (c_dist >= this.OFFSET * p_dist) {
+          console.log('currentPoint.probability:' + currentPoint.probability);
+          console.log('c_dist:' + c_dist);
           tp = p_dist / c_dist;
+          console.log('tp:' + tp);
         }
         var _otp = currentPoint.probability * tp + previousPoint.probability;
         if (_otp > otp) {
