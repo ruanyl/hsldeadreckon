@@ -5,6 +5,7 @@ var Matching = require('./matching');
 
 var radius = 100;
 var mapRoute = null;
+var markers = [];
 
 function init() {
   setLocalPoints(null);
@@ -18,10 +19,12 @@ function init() {
   }).addTo(map);
 
   map.on('click', matching);
+  $('.undo-btn').bind('click', undoDrawRoute);
 }
 
 function matching(e) {
-  L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+  var m = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+  markers.push(m);
   $.ajax({
     type: 'POST',
     url: 'http://82.130.25.39:8080/query/nearby',
@@ -37,12 +40,12 @@ function matching(e) {
       var points = matching.getCandidatePoints(e.latlng.lng, e.latlng.lat, localPoints, data);
       setLocalPoints(points);
       var routes = findRoute(points);
-      setMarker(routes);
+      drawRoute(routes);
     }
   });
 }
 
-function setMarker(routes) {
+function drawRoute(routes) {
   if (mapRoute) map.removeLayer(mapRoute);
 
   var routePoints = [];
@@ -56,6 +59,18 @@ function setMarker(routes) {
   if (routePoints.length >= 2) {
     mapRoute = L.polyline(routePoints).addTo(map);
   }
+}
+
+function undoDrawRoute() {
+  var routeLength = mapRoute.getLatLngs().length;
+  mapRoute.spliceLatLngs(routeLength-1, 1);
+
+  var points = getLocalPoints();
+  points.pop();
+  setLocalPoints(points);
+
+  var m = markers.pop();
+  map.removeLayer(m);
 }
 
 function findRoute(points) {
