@@ -2,6 +2,7 @@ var $ = require('jquery-node-browserify');
 
 var config = require('./config');
 var Matching = require('./matching');
+var demoRoutes = require('./demoRoutes');
 
 var radius = 100;
 var mapRoute = null;
@@ -18,26 +19,33 @@ function init() {
     attribution: config.cloudmade.attribution
   }).addTo(map);
 
-  map.on('click', matching);
+  map.on('click', addMarker);
   $('.undo-btn').bind('click', undoDrawRoute);
+  $('.save-markers-btn').bind('click', getLatLngsFromMarkers);
 }
 
-function matching(e) {
-  var m = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+function addMarker(e) {
+  var lat = e.latlng.lat;
+  var lng = e.latlng.lng;
+  var m = L.marker([lat, lng]).addTo(map);
   markers.push(m);
+  matching(lat, lng);
+}
+
+function matching(lat, lng) {
   $.ajax({
     type: 'POST',
     url: 'http://82.130.25.39:8080/query/nearby',
     data: {
-      lng: e.latlng.lng,
-      lat: e.latlng.lat,
+      lng: lng,
+      lat: lat,
       radius: radius
     }
   }).done(function(data) {
     if (data.length) {
       var localPoints = getLocalPoints();
       var matching = new Matching();
-      var points = matching.getCandidatePoints(e.latlng.lng, e.latlng.lat, localPoints, data);
+      var points = matching.getCandidatePoints(lng, lat, localPoints, data);
       setLocalPoints(points);
       var routes = findRoute(points);
       drawRoute(routes);
@@ -62,9 +70,9 @@ function drawRoute(routes) {
 }
 
 function undoDrawRoute() {
-  if(mapRoute) var routeLength = mapRoute.getLatLngs().length;
-  if(routeLength) {
-    mapRoute.spliceLatLngs(routeLength-1, 1);
+  if (mapRoute) var routeLength = mapRoute.getLatLngs().length;
+  if (routeLength) {
+    mapRoute.spliceLatLngs(routeLength - 1, 1);
 
     var points = getLocalPoints();
     points.pop();
@@ -73,6 +81,15 @@ function undoDrawRoute() {
     var m = markers.pop();
     map.removeLayer(m);
   }
+}
+
+function getLatLngsFromMarkers() {
+  var latlngs = [];
+  $.each(markers, function(i, marker) {
+    var latlng = [marker.getLatLng().lat, marker.getLatLng().lng];
+    latlngs.push(latlng);
+  });
+  console.log(JSON.stringify(latlngs));
 }
 
 function findRoute(points) {
@@ -96,7 +113,7 @@ function findRoute(points) {
       }
     }
   }
-  console.log(routes);
+  //console.log(routes);
   return routes;
 }
 
