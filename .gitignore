@@ -4,5 +4,7 @@ static/js/client.js
 bower_components
 dist/js/*
 dist/css/*
-public/js/*
-public/css/*
+public/js/client.js
+public/js/client.min.js
+public/css/style.css
+public/css/style.min.css

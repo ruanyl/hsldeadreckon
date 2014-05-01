@@ -2,6 +2,7 @@ var $ = require('jquery-node-browserify');
 
 var config = require('./config');
 var Matching = require('./matching');
+var demoRoutes = require('./demoRoutes');
 
 var radius = 100;
 var mapRoute = null;
@@ -11,38 +12,88 @@ function init() {
   setLocalPoints(null);
 
   map = L.map('map');
-  map.on('load', setInitMap);
+  //map.on('load', setInitMap);
   marker = L.marker([config.defaultConfig.latitude, config.defaultConfig.longitude]).addTo(map);
   map.setView([config.defaultConfig.latitude, config.defaultConfig.longitude], config.defaultConfig.zoom);
   L.tileLayer(config.cloudmade.url, {
     attribution: config.cloudmade.attribution
   }).addTo(map);
 
-  map.on('click', matching);
+  map.on('click', addMarker);
   $('.undo-btn').bind('click', undoDrawRoute);
+  $('.save-markers-btn').bind('click', getLatLngsFromMarkers);
+  $('.demo-A').bind('click', demoA);
 }
 
-function matching(e) {
-  var m = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+function addMarker(e) {
+  var lat = e.latlng.lat;
+  var lng = e.latlng.lng;
+  var m = L.marker([lat, lng]).addTo(map);
   markers.push(m);
+  matching(lat, lng);
+}
+
+function matching(lat, lng) {
   $.ajax({
     type: 'POST',
     url: 'http://82.130.25.39:8080/query/nearby',
     data: {
-      lng: e.latlng.lng,
-      lat: e.latlng.lat,
+      lng: lng,
+      lat: lat,
       radius: radius
     }
   }).done(function(data) {
     if (data.length) {
       var localPoints = getLocalPoints();
       var matching = new Matching();
-      var points = matching.getCandidatePoints(e.latlng.lng, e.latlng.lat, localPoints, data);
+      var points = matching.getCandidatePoints(lng, lat, localPoints, data);
       setLocalPoints(points);
       var routes = findRoute(points);
       drawRoute(routes);
     }
   });
+}
+
+function demoA() {
+  var routeA = demoRoutes.routeA,
+    len = routeA.length,
+    i = 2,
+    markersL = [];
+
+  var bikeIcon = L.icon({
+    iconUrl: 'js/images/marker-bike-green-shadowed.png',
+    iconSize: [25, 39],
+    iconAnchor: [12, 39],
+    shadowUrl: null
+  });
+
+  var latlng1 = L.latLng(routeA[0][0], routeA[0][1]);
+  var latlng2 = L.latLng(routeA[1][0], routeA[1][1]);
+  setTimeout(function() {
+    matching(routeA[0][0], routeA[0][1])
+  }, 1000);
+
+  setTimeout(function() {
+    matching(routeA[1][0], routeA[1][1])
+  }, 2000);
+
+  map.setView([routeA[0][0], routeA[0][1]], 18);
+
+  markersL.push(latlng1, latlng2);
+  console.log(markersL);
+  animatedMarker = L.animatedMarker(markersL, {
+    icon: bikeIcon,
+    interval: 12000,
+    onEnd: function() {
+      if(i<len) {
+        console.log(animatedMarker);
+        this.addLatLng(L.latLng([routeA[i][0], routeA[i][1]]));
+        matching(routeA[i][0], routeA[i][1])
+      }
+      i += 1;
+    }
+  });
+  map.addLayer(animatedMarker);
 }
 
 function drawRoute(routes) {
@@ -62,9 +113,9 @@ function drawRoute(routes) {
 }
 
 function undoDrawRoute() {
-  if(mapRoute) var routeLength = mapRoute.getLatLngs().length;
-  if(routeLength) {
-    mapRoute.spliceLatLngs(routeLength-1, 1);
+  if (mapRoute) var routeLength = mapRoute.getLatLngs().length;
+  if (routeLength) {
+    mapRoute.spliceLatLngs(routeLength - 1, 1);
 
     var points = getLocalPoints();
     points.pop();
@@ -73,6 +124,15 @@ function undoDrawRoute() {
     var m = markers.pop();
     map.removeLayer(m);
   }
+}
+
+function getLatLngsFromMarkers() {
+  var latlngs = [];
+  $.each(markers, function(i, marker) {
+    var latlng = [marker.getLatLng().lat, marker.getLatLng().lng];
+    latlngs.push(latlng);
+  });
+  console.log(JSON.stringify(latlngs));
 }
 
 function findRoute(points) {
@@ -96,7 +156,7 @@ function findRoute(points) {
       }
     }
   }
-  console.log(routes);
+  //console.log(routes);
   return routes;
 }
 
