@@ -62,15 +62,17 @@ function drawRoute(routes) {
 }
 
 function undoDrawRoute() {
-  var routeLength = mapRoute.getLatLngs().length;
-  mapRoute.spliceLatLngs(routeLength-1, 1);
+  if(mapRoute) var routeLength = mapRoute.getLatLngs().length;
+  if(routeLength) {
+    mapRoute.spliceLatLngs(routeLength-1, 1);
 
-  var points = getLocalPoints();
-  points.pop();
-  setLocalPoints(points);
+    var points = getLocalPoints();
+    points.pop();
+    setLocalPoints(points);
 
-  var m = markers.pop();
-  map.removeLayer(m);
+    var m = markers.pop();
+    map.removeLayer(m);
+  }
 }
 
 function findRoute(points) {
