@@ -12,7 +12,7 @@ function init() {
   setLocalPoints(null);
 
   map = L.map('map');
-  map.on('load', setInitMap);
+  //map.on('load', setInitMap);
   marker = L.marker([config.defaultConfig.latitude, config.defaultConfig.longitude]).addTo(map);
   map.setView([config.defaultConfig.latitude, config.defaultConfig.longitude], config.defaultConfig.zoom);
   L.tileLayer(config.cloudmade.url, {
@@ -22,6 +22,7 @@ function init() {
   map.on('click', addMarker);
   $('.undo-btn').bind('click', undoDrawRoute);
   $('.save-markers-btn').bind('click', getLatLngsFromMarkers);
+  $('.demo-A').bind('click', demoA);
 }
 
 function addMarker(e) {
@@ -51,6 +52,48 @@ function matching(lat, lng) {
       drawRoute(routes);
     }
   });
+}
+
+function demoA() {
+  var routeA = demoRoutes.routeA,
+    len = routeA.length,
+    i = 2,
+    markersL = [];
+
+  var bikeIcon = L.icon({
+    iconUrl: 'js/images/marker-bike-green-shadowed.png',
+    iconSize: [25, 39],
+    iconAnchor: [12, 39],
+    shadowUrl: null
+  });
+
+  var latlng1 = L.latLng(routeA[0][0], routeA[0][1]);
+  var latlng2 = L.latLng(routeA[1][0], routeA[1][1]);
+  setTimeout(function() {
+    matching(routeA[0][0], routeA[0][1])
+  }, 1000);
+
+  setTimeout(function() {
+    matching(routeA[1][0], routeA[1][1])
+  }, 2000);
+
+  map.setView([routeA[0][0], routeA[0][1]], 18);
+
+  markersL.push(latlng1, latlng2);
+  console.log(markersL);
+  animatedMarker = L.animatedMarker(markersL, {
+    icon: bikeIcon,
+    interval: 12000,
+    onEnd: function() {
+      if(i<len) {
+        console.log(animatedMarker);
+        this.addLatLng(L.latLng([routeA[i][0], routeA[i][1]]));
+        matching(routeA[i][0], routeA[i][1])
+      }
+      i += 1;
+    }
+  });
+  map.addLayer(animatedMarker);
 }
 
 function drawRoute(routes) {
