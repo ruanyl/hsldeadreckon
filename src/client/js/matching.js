@@ -129,7 +129,7 @@ Matching.prototype = {
     var previousPoints = points[points.length - 2];
     var p_dist = this.pointToPointDist(currentPoints[0].originLongitude, currentPoints[0].originLatitude,
       previousPoints[0].originLongitude, previousPoints[0].originLatitude);
-    console.log('p_dist:' + p_dist);
+    //console.log('p_dist:' + p_dist);
     for (var i = 0; i < currentPoints.length; i++) {
       var currentPoint = currentPoints[i];
       var otp = 0;
@@ -138,10 +138,10 @@ Matching.prototype = {
         var c_dist = this.pointToPointDist(currentPoint.longitude, currentPoint.latitude, previousPoint.longitude, previousPoint.latitude);
         var tp = 0;
         if (c_dist >= this.OFFSET * p_dist) {
-          console.log('currentPoint.probability:' + currentPoint.probability);
-          console.log('c_dist:' + c_dist);
+          //console.log('currentPoint.probability:' + currentPoint.probability);
+          //console.log('c_dist:' + c_dist);
           tp = p_dist / c_dist;
-          console.log('tp:' + tp);
+          //console.log('tp:' + tp);
         }
         var _otp = currentPoint.probability * tp + previousPoint.probability;
         if (_otp > otp) {
