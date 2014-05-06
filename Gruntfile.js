@@ -121,7 +121,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
   grunt.registerTask('build', ['browserify', 'compass', 'concat', 'watch']);
-  grunt.registerTask('release', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'copy', 'watch']);
-  grunt.registerTask('default', ['jshint', 'build']);
+  grunt.registerTask('server', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'copy', 'watch']);
+  grunt.registerTask('default', ['server']);
   grunt.registerTask('test', ['jshint', 'mochaTest']);
 };
