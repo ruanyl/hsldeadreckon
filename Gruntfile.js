@@ -7,7 +7,7 @@ module.exports = function(grunt) {
     },
     watch: {
       js: {
-        files: ['src/client/**/*.js'],
+        files: ['src/client/js/*.js'],
         tasks: ['jshint', 'browserify']
       },
       compass: {
@@ -15,26 +15,38 @@ module.exports = function(grunt) {
         tasks: ['compass']
       },
       combineCss: {
-        files: ['dist/**/*.css'],
+        files: ['dist/css/*.css'],
         tasks: ['concat:css']
       },
       combineJs: {
-        files: ['dist/**/*.js'],
+        files: ['src/lib/*.js'],
         tasks: ['concat:js']
       },
       minCss: {
-        files: ['public/css/style.css'],
+        files: ['dist/style.css'],
         tasks: ['cssmin']
       },
-      minJs: {
-        files: ['public/js/client.js'],
-        tasks: ['uglify']
+      clientjs: {
+        files: ['dist/client.js'],
+        tasks: ['uglify:client']
+      },
+      libjs: {
+        files: ['dist/matching.js'],
+        tasks: ['uglify:lib']
+      },
+      copyjs: {
+        files: ['dist/matching.min.js', 'client.min.js'],
+        tasks: ['copy:js']
+      },
+      copycss: {
+        files: ['dist/style.min.css'],
+        tasks: ['copy:css']
       }
     },
     browserify: {
       dist: {
         files: {
-          'dist/js/client.js': ['src/client/**/*.js']
+          'dist/client.js': ['src/client/js/*.js']
         }
       }
     },
@@ -48,26 +60,45 @@ module.exports = function(grunt) {
     },
     concat: {
       css: {
-        src: ['dist/**/*.css'],
-        dest: 'public/css/style.css'
+        src: ['dist/css/*.css'],
+        dest: 'dist/style.css'
       },
       js: {
-        src: ['dist/**/*.js'],
-        dest: 'public/js/client.js'
+        src: ['src/lib/*.js'],
+        dest: 'dist/matching.js'
       }
     },
     cssmin: {
       minify: {
         files: {
-          'public/css/style.min.css': ['public/css/style.css']
+          'dist/style.min.css': ['dist/style.css']
         }
       }
     },
     uglify: {
-      minify: {
+      client: {
         files: {
-          'public/js/client.min.js': ['public/js/client.js']
+          'dist/client.min.js': ['dist/client.js']
         }
+      },
+      lib: {
+        files: {
+          'dist/matching.min.js': ['dist/matching.js']
+        }
+      }
+    },
+    copy: {
+      css: {
+        expand: true,
+        flatten: true,
+        src: ['dist/style.min.css', 'dist/style.css'],
+        dest: 'public/css/'
+      },
+      js: {
+        expand: true,
+        flatten: true,
+        src: ['dist/client.min.js', 'dist/client.js', 'dist/matching.js', 'dist/matching.min.js'],
+        dest: 'public/js/'
       }
     },
     mochaTest: {
@@ -87,9 +118,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
   grunt.registerTask('build', ['browserify', 'compass', 'concat', 'watch']);
-  grunt.registerTask('release', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'watch']);
+  grunt.registerTask('release', ['browserify', 'compass', 'concat', 'cssmin', 'uglify', 'copy', 'watch']);
   grunt.registerTask('default', ['jshint', 'build']);
   grunt.registerTask('test', ['jshint', 'mochaTest']);
 };
