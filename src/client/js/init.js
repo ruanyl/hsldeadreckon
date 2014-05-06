@@ -1,7 +1,6 @@
 var $ = require('jquery-node-browserify');
 
 var config = require('./config');
-var Matching = require('./matching');
 var demoRoutes = require('./demoRoutes');
 
 var radius = 100;
@@ -45,10 +44,10 @@ function matching(lat, lng) {
   }).done(function(data) {
     if (data.length) {
       var localPoints = getLocalPoints();
-      var matching = new Matching();
+      var matching = new M.STMatching();
       var points = matching.getCandidatePoints(lng, lat, localPoints, data);
       setLocalPoints(points);
-      var routes = findRoute(points);
+      var routes = matching.findRoute(points);
       drawRoute(routes);
     }
   });

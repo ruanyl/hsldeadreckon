@@ -2,9 +2,12 @@ node_modules
 static/js/client.js
 .sass-cache
 bower_components
+dist
 dist/js/*
 dist/css/*
 public/js/client.js
 public/js/client.min.js
+public/js/matching.js
+public/js/matching.min.js
 public/css/style.css
 public/css/style.min.css
