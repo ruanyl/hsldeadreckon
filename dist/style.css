@@ -1,0 +1,39 @@
+/* line 1, ../../src/client/sass/main.scss */
+html, body {
+  height: 100%;
+}
+
+/* line 4, ../../src/client/sass/main.scss */
+#wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* line 11, ../../src/client/sass/main.scss */
+#map {
+  height: 100%;
+}
+
+/* line 14, ../../src/client/sass/main.scss */
+.undo-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* line 19, ../../src/client/sass/main.scss */
+.save-markers-btn {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+}
+
+/* line 24, ../../src/client/sass/main.scss */
+.demo-A {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+}
