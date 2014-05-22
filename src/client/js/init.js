@@ -14,9 +14,12 @@ function init() {
   //map.on('load', setInitMap);
   marker = L.marker([config.defaultConfig.latitude, config.defaultConfig.longitude]).addTo(map);
   map.setView([config.defaultConfig.latitude, config.defaultConfig.longitude], config.defaultConfig.zoom);
-  L.tileLayer(config.cloudmade.url, {
-    attribution: config.cloudmade.attribution
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+  /*L.tileLayer(config.cloudmade.url, {*/
+    //attribution: config.cloudmade.attribution
+  /*}).addTo(map);*/
 
   map.on('click', addMarker);
   $('.undo-btn').bind('click', undoDrawRoute);
@@ -84,7 +87,7 @@ function demoA() {
     icon: bikeIcon,
     interval: 12000,
     onEnd: function() {
-      if(i<len) {
+      if (i < len) {
         console.log(animatedMarker);
         this.addLatLng(L.latLng([routeA[i][0], routeA[i][1]]));
         matching(routeA[i][0], routeA[i][1])
